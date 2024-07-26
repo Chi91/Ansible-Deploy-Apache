@@ -5,4 +5,4 @@
 *.tfstate
 *.tfstate.*
 
-ansible/chi_deploy_alone.pem
+ansible/chi_deploy_alone_apache.pem
