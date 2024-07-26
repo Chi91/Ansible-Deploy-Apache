@@ -1,0 +1,49 @@
+- name: Create a standalone Apache chi_server
+  hosts: chi_server
+  become: yes
+  vars:
+    doc_root: /var/www/example
+  tasks: 
+    - name: Update apt 
+      apt: 
+        update_cache: "yes"
+
+    - name: Install Apache
+      apt: 
+        name: apache2
+        state: latest
+
+    - name: Create custom document doc_root
+      file:
+        path: "{{ doc_root }}"
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Set up HTML file
+      copy:
+        src: index.html
+        dest: "{{ doc_root }}/index.html"
+        owner: www-data
+        group: www-data
+        mode: 0644
+
+    - name: Set up Apache virutal host file
+      template:
+        src: vhosts.tpl
+        dest: /etc/apache2/sites-available/example.conf
+      notify: restart apache
+
+    - name: Enable custom Apache site
+      command: a2dissite 000-default.conf
+
+    - name: Enable custom Apache site
+      command: a2ensite example.conf
+# handler Fkt Restart, wenn Änderung stattfindet
+  handlers: 
+    - name: restart apache
+      service: 
+        name: apache2
+        state: restarted
+
+      
